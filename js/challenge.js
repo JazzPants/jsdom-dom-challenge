@@ -1,13 +1,25 @@
-// document.addEventListener("DOMContentLoaded", setInterval)
+document.addEventListener("DOMContentLoaded", beginCounter)
 
-let interval = setInterval(increment, 1000);
+function beginCounter() {
+    return interval = setInterval(increment, 1000);
+}
+ 
+let clicks = 0;
+let likedNumbers = {} //dynamic key!
 
 function increment() {
     let x = parseInt(counterBox.innerText, 10);
     x++;
+    clicks = 0
     return counterBox.innerHTML = x;
 }
 
+function restartCounter() {
+    minusButton.disabled = false;
+    plusButton.removeAttribute("disabled")
+    likeButton.removeAttribute("disabled")
+    return counterBox.innerHTML = 0;
+}
 
 const counterBox = document.getElementById('counter');
 const plusButton = document.getElementById('plus');
@@ -15,9 +27,10 @@ const minusButton = document.getElementById('minus');
 const likeButton = document.getElementById('heart');
 const pauseButton = document.getElementById('pause');
 const submitButton = document.getElementById('submit');
+const restartButton = document.getElementById('restart');
 
 const likeList = document.querySelector('.likes');
-let clicks = 0;
+
 
 function upNumber() {
     console.log('plus button clicked!');
@@ -39,28 +52,26 @@ function downNumber() {
 }
 
 function addLike() {
-    console.log('like button clicked!');
     let x = parseInt(counterBox.innerText, 10);
     let currentNumber = x;
-    console.log(`${x}`);
-    console.log(`${currentNumber}`);
+    if(likedNumbers[currentNumber]) { //if/when likedNumbers has a key of currentNumber
+        const li = document.querySelector(`[data-number="${currentNumber}"]`)
+        likedNumbers[currentNumber] += 1; //keep incrementing the object.key by 1 if clicked many times within 1 second
+        console.log(`${x} was liked ${likedNumbers[currentNumber]} times!`)
+        li.innerHTML = `${x} was liked ${likedNumbers[currentNumber]} times!`; //override the 1 like li element
+    } else { //if a new counter number and clicked once in one second
+        likedNumbers[currentNumber] = 1 //one click = one like for the current object key (the current counter number)
+        const li = document.createElement("li");
+        console.log(`${x} was liked once`)
+        li.dataset.number = currentNumber; //track the li and give it a value we can refer to
+        li.innerHTML = `${x} was liked 1 time!`;
+        likeList.appendChild(li); 
+    }
     // if (currentNumber === x) {
     //     clicks++;
     // } else {
     //     clicks = 0
     // }
-    
-
-    li = document.createElement("li");
-    li.innerHTML = `${x} was liked ${clicks} times!`;
-    likeList.appendChild(li); 
-    if (currentNumber === x) {
-        
-    } else {
-        
-    }
-    
-    
 }
 
 function pauseCounter() {
@@ -69,14 +80,24 @@ function pauseCounter() {
         pauseButton.innerHTML = "resume"
         clearInterval(interval)
         interval = null;
+        minusButton.disabled = true; //1st way to disable
+        plusButton.setAttribute("disabled","") //2nd way to disable
+        likeButton.setAttribute("disabled","")
     } else {
         pauseButton.innerHTML = "pause"
         interval = setInterval(increment, 1000)
+        minusButton.disabled = false;
+        plusButton.removeAttribute("disabled")
+        likeButton.removeAttribute("disabled")
     }
 }
 
 function submitContent(event) {
     event.preventDefault();
+    let newCommentValue = document.getElementById("comment-input").value;
+    let newComment = document.createElement("div")
+    newComment.innerHTML = newCommentValue;
+    document.getElementById('list').appendChild(newComment);
 }
 
 plusButton.addEventListener('click', upNumber);
@@ -84,6 +105,7 @@ minusButton.addEventListener('click', downNumber);
 likeButton.addEventListener('click', addLike);
 pauseButton.addEventListener('click', pauseCounter);
 submitButton.addEventListener('click', submitContent)
+restartButton.addEventListener('click', restartCounter)
 
 
 // let intervalID;
